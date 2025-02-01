@@ -1,7 +1,6 @@
 package com.api_penta_dev.models;
 
 import jakarta.persistence.Id;
-import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "users")
