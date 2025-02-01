@@ -4,8 +4,7 @@ import jakarta.persistence.Id;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
-@Document(collection = "user")
+@Document(collection = "users")
 public class User {
     @Id
     private String id;
