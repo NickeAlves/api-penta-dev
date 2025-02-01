@@ -1,29 +1,49 @@
 package com.api_penta_dev.infra.security;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.api_penta_dev.models.User;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.stereotype.Service;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 public class TokenService {
 
     private static final String SECRET_KEY = "mySecretKey";
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 2;
 
-    public String generateToken(String userId, String name, boolean isGuest) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("name", name);
-        claims.put("guest", isGuest);
+    public String generateToken(User user) {
+        try{
+            Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+            String token = JWT.create()
+                    .withIssuer("login-auth-api")
+                    .withSubject(user.getEmail())
+                    .withExpiresAt(this.generateExpirationDate())
+                    .sign(algorithm);
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userId)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
-                .compact();
+            return token;
+        } catch (JWTVerificationException exception) {
+            throw new RuntimeException("Error while authenticating");
+        }
+    }
+
+    public String validateToken(String token) {
+        try{
+            Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
+            return JWT.require(algorithm)
+                    .withIssuer("login-auth-api")
+                    .build()
+                    .verify(token)
+                    .getSubject();
+        } catch (JWTVerificationException exception) {
+            return null;
+        }
+    }
+
+    private Instant generateExpirationDate() {
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 }
