@@ -3,6 +3,8 @@ package com.api_penta_dev.models;
 import jakarta.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "users")
 public class User {
     @Id
@@ -10,6 +12,7 @@ public class User {
     private String name;
     private String email;
     private String password;
+    private List<Room> roomsCreated;
 
     public User() {
     }
@@ -44,5 +47,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Room> getRoomsCreated() {
+        return roomsCreated;
+    }
+
+    public void setRoomsCreated(List<Room> roomsCreated) {
+        this.roomsCreated = roomsCreated;
     }
 }

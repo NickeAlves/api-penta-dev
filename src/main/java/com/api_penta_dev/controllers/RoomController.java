@@ -1,13 +1,12 @@
 package com.api_penta_dev.controllers;
 
-
+import com.api_penta_dev.dto.RoomDTO;
 import com.api_penta_dev.models.Room;
-import com.api_penta_dev.repositories.RoomRepository;
 import com.api_penta_dev.services.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -36,35 +35,24 @@ public class RoomController {
     }
 
     @PostMapping
-    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
-        Room savedRoom = roomService.createRoom(room);
-        return ResponseEntity.status(201).body(savedRoom);
+    public ResponseEntity<Room> createRoom(@RequestBody RoomDTO roomDTO) {
+        Room newRoom = roomService.createRoom(roomDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?>  updateRoom(@PathVariable String id, @RequestBody Room roomDetails) {
-        Optional<Room> roomOpt = roomService.findById(id);
-        if (roomOpt.isPresent()) {
-            Room room = roomOpt.get();
-            room.setName(roomDetails.getName());
-            room.setPlayers(roomDetails.getPlayers());
-            room.setGameStatus(roomDetails.getGameStatus());
-            roomService.updateRoom(id,roomDetails);
-            return ResponseEntity.ok().body("Room updated successfully.");
-        } else {
-            return ResponseEntity.notFound().build();
+    @PutMapping("/{roomId}")
+    public ResponseEntity<Room> updateRoom(@PathVariable String roomId, @RequestBody RoomDTO roomDTO) {
+        try {
+            Room updatedRoom = roomService.updateRoom(roomId, roomDTO);
+            return ResponseEntity.ok(updatedRoom);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteRoom(@PathVariable String id) {
-        Optional<Room> roomOpt = roomService.findById(id);
-        if (roomOpt.isPresent()) {
-            roomService.deleteById(id);
-            return ResponseEntity.ok().body("Room deleted successfully.");
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    @DeleteMapping("/{roomId}")
+    public ResponseEntity<Void> deleteRoom(@PathVariable String roomId) {
+        roomService.deleteRoom(roomId);
+        return ResponseEntity.noContent().build();
     }
 }
-
