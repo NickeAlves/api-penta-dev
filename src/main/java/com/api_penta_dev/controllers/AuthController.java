@@ -102,4 +102,14 @@ public class AuthController {
 
         return ResponseEntity.ok(new ResponseDTO(user.getName(), token, user.getId().toString()));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseDTO> logout (@RequestHeader(name = "Authorization", required = false) String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(400).body(new ResponseDTO("Invalid token format", null, null));
+        }
+        String authToken = token.substring(7);
+        return ResponseEntity.ok(new ResponseDTO("Logged out successfully", null, null));
+    }
+
 }
