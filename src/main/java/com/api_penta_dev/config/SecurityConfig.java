@@ -43,31 +43,23 @@ public class SecurityConfig {
         return new ProviderManager(List.of(authProvider));
     }
 
-    // 1) Configure CORS:
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Especifique as origens permitidas (ex: http://localhost:3000)
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        // Métodos permitidos (GET, POST, PUT, DELETE, etc.)
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // Headers que podem ser utilizados na requisição
         configuration.setAllowedHeaders(List.of("*"));
-        // Se quiser permitir envio de cookies/credenciais via front-end
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Aplica as configurações de CORS para todas as rotas da aplicação
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
-    // 2) Habilite CORS no HttpSecurity:
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityFilter securityFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                // Habilita CORS a partir da configuração acima
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/guest/**").permitAll()
